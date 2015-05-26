@@ -43,28 +43,26 @@ while true
 do
 	sleep $snapshot_interval_seconds
 
-    # Capture up to four screens with no sound, of type jpg
+	# Capture up to four screens with no sound, of type jpg
 	timestamp=$(date +%Y%m%d%H%M%S)
 	label=$(date)
 	screencapture -x -tjpg ${timestamp}_1.jpg ${timestamp}_2.jpg ${timestamp}_3.jpg ${timestamp}_4.jpg
 
-	# Work out how many screens we have
-	for i in `seq 1 4`
-	do
-		if [ -f ${timestamp}_${i}.jpg ]; then screen_count=$i; fi
-	done
-
 	# Use imagemagick to overlay the current time over the images so that we see when each 
 	# capture was taken since the clock is not always visible
-	for i in `seq 1 $screen_count`
+	for i in `seq 1 4`
 	do
-		# But only if screensaver not running
-		ps ax|grep [S]creenSaverEngine > /dev/null
-		if [ "$?" != "0" ] ; then
-			convert ${timestamp}_${i}.jpg -fill white  -undercolor '#00000080'  -gravity South -annotate +0+5 "${label}" ${timestamp}_${i}.jpg
-		else
-			# Otherwise don't keep the file
-			rm ${timestamp}_${i}.jpg
+		# If we have a capture for this screen
+		if [ -f ${timestamp}_${i}.jpg ]
+		then
+			# But only if screensaver not running
+			ps ax|grep [S]creenSaverEngine > /dev/null
+			if [ "$?" != "0" ] ; then
+				convert ${timestamp}_${i}.jpg -fill white  -undercolor '#00000080'  -gravity South -annotate +0+5 "${label}" ${timestamp}_${i}.jpg
+			else
+				# Otherwise don't keep the file
+				rm ${timestamp}_${i}.jpg
+			fi
 		fi
 	done
 
@@ -74,7 +72,7 @@ do
 	current_hour=$(date +%Y%m%d%H)
 	if [ "$previous_hour" != "$current_hour" ]
 	then
-		for i in `seq 1 $screen_count`
+		for i in `seq 1 4`
 		do
 			# Only create the movie if we have files for the last hour
 			if ls ${previous_hour}*_${i}.jpg 1> /dev/null 2>&1
@@ -88,10 +86,9 @@ do
 
 	# If we are on a new day, bring all the last day's movies into a single movie
 	current_day=$(date +%Y%m%d)
-	current_hour=$(date +%Y%m%d%H)
 	if [ "$previous_day" != "$current_day" ]
 	then
-		for i in `seq 1 $screen_count`
+		for i in `seq 1 4`
 		do
 			# Only create the movie if we have files for the last day
 			if ls ${previous_day}*_${i}.jpg 1> /dev/null 2>&1
