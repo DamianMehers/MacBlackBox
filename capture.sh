@@ -25,17 +25,32 @@
 
 # Needs ffmpeg, ghostscript, imagemagick
 
+configuration_file=${HOME}/.MacBlackBox
+if [ -f $configuration_file ]; then
+	source $configuration_file
+fi 
+
 # How long to wait between screenshots
-snapshot_interval_seconds=10
+snapshot_interval_seconds=${snapshot_interval_seconds-10}
 
 # How many snapshots per second in the hourly movies
-snapshots_per_second=2
+snapshots_per_second=${snapshots_per_second-2}
 
 # How long to keep the hourly videos, in days
-keep_video_days=120
+keep_video_days=${keep_video_days-120}
+
+# Location of the captures.  Captures are saved into this directory.  Hourly movies to the parent directory.
+videos_location=${videos_location-~/MacBlackBox}
+
+if [ -n "$show_config" -a "$show_config" != "0" ]; then
+	echo Capturing a screenshot ever $snapshot_interval_seconds seconds
+	echo Creating videos with $snapshots_per_second snapshots per second 
+	echo \($((snapshots_per_second*snapshot_interval_seconds)) real life seconds per video second\)
+	echo Keeping videos for $keep_video_days days, in $videos_location
+fi
 
 # Change this as you wish.  Captures are saved into this directory.  Hourly movies to the parent directory.
-cd ~/MacBlackBox/captures
+cd ${videos_location}/captures
 
 previous_hour=$(date +%Y%m%d%H)
 previous_day=$(date +%Y%m%d)
