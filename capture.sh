@@ -39,7 +39,7 @@ snapshots_per_second=${snapshots_per_second-2}
 # How long to keep the hourly videos, in days
 keep_video_days=${keep_video_days-120}
 
-# Location of the captures.  Captures are saved into this directory.  Hourly movies to the parent directory.
+# Location of the videos.  Captures are saved into a 'captures' subdirectory.
 videos_location=${videos_location-~/MacBlackBox}
 
 if [ -n "$show_config" -a "$show_config" != "0" ]; then
@@ -49,7 +49,6 @@ if [ -n "$show_config" -a "$show_config" != "0" ]; then
 	echo Keeping videos for $keep_video_days days, in $videos_location
 fi
 
-# Change this as you wish.  Captures are saved into this directory.  Hourly movies to the parent directory.
 cd ${videos_location}/captures
 
 previous_hour=$(date +%Y%m%d%H)
@@ -86,7 +85,7 @@ do
 	then
 		for i in `seq 1 4`
 		do
-			# Only create the movie if we have files for the last hour
+			# Only create the movie if we have files for the previous hour
 			if ls ${previous_hour}*_${i}.jpg 1> /dev/null 2>&1
 			then
 				# Run in the background so that we can continue capturing screens.  Use 'nice' to not hit foreground apps too hard
@@ -96,13 +95,13 @@ do
 		previous_hour=$current_hour
 	fi
 
-	# If we are on a new day, bring all the last day's movies into a single movie
+	# If we are on a new day, bring all the previous day's movies into a single movie
 	current_day=$(date +%Y%m%d)
 	if [ "$previous_day" != "$current_day" ]
 	then
 		for i in `seq 1 4`
 		do
-			# Only create the movie if we have files for the last day
+			# Only create the movie if we have files for the previous day
 			if ls ${previous_day}*_${i}.jpg 1> /dev/null 2>&1
 			then
 				(nice ffmpeg -f concat -i <(for f in $videos_location/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy $videos_location/${previous_day}_${i}.mp4; rm $videos_location/$previous_day??_$i.mp4) &
@@ -111,7 +110,7 @@ do
 		previous_day=$current_day
 		
 		# Remove older files
-		find ../*.mp4 -type f -mtime +$keep_video_days -delete
+		find $videos_location/*.mp4 -type f -mtime +$keep_video_days -delete
 	fi
 
 done
