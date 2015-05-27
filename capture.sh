@@ -43,28 +43,25 @@ while true
 do
 	sleep $snapshot_interval_seconds
 
-	# Capture up to four screens with no sound, of type jpg
-	timestamp=$(date +%Y%m%d%H%M%S)
-	label=$(date)
-	screencapture -x -tjpg ${timestamp}_1.jpg ${timestamp}_2.jpg ${timestamp}_3.jpg ${timestamp}_4.jpg
+	# skip capture if the screensaver is running
+	ps ax|grep [S]creenSaverEngine > /dev/null
+	if [ "$?" != "0" ] ; then
+		# Capture up to four screens with no sound, of type jpg
+		timestamp=$(date +%Y%m%d%H%M%S)
+		label=$(date)
+		screencapture -x -tjpg ${timestamp}_1.jpg ${timestamp}_2.jpg ${timestamp}_3.jpg ${timestamp}_4.jpg
 
-	# Use imagemagick to overlay the current time over the images so that we see when each 
-	# capture was taken since the clock is not always visible
-	for i in `seq 1 4`
-	do
-		# If we have a capture for this screen
-		if [ -f ${timestamp}_${i}.jpg ]
-		then
-			# But only if screensaver not running
-			ps ax|grep [S]creenSaverEngine > /dev/null
-			if [ "$?" != "0" ] ; then
+		# Use imagemagick to overlay the current time over the images so that we see when each 
+		# capture was taken since the clock is not always visible
+		for i in `seq 1 4`
+		do
+			# If we have a capture for this screen
+			if [ -f ${timestamp}_${i}.jpg ]
+			then
 				convert ${timestamp}_${i}.jpg -fill white  -undercolor '#00000080'  -gravity South -annotate +0+5 "${label}" ${timestamp}_${i}.jpg
-			else
-				# Otherwise don't keep the file
-				rm ${timestamp}_${i}.jpg
 			fi
-		fi
-	done
+		done
+	fi
 
 	# If we are on a new hour, make a movie from the previous hour's captures and delete them.
 	# Two frames per second means that each second of video is twenty seconds of real life if we
@@ -102,5 +99,4 @@ do
 		find ../*.mp4 -type f -mtime +$keep_video_days -delete
 	fi
 
-	previous_timestamp=$timestamp
 done
