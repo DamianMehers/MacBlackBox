@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x #echo on
+# set -x #echo on
 
 # The MIT License (MIT)
 
@@ -43,7 +43,7 @@ keep_video_days=${keep_video_days-120}
 videos_location=${videos_location-~/MacBlackBox}
 
 if [ -n "$show_config" -a "$show_config" != "0" ]; then
-	echo Capturing a screenshot ever $snapshot_interval_seconds seconds
+	echo Capturing a screenshot every $snapshot_interval_seconds seconds
 	echo Creating videos with $snapshots_per_second snapshots per second 
 	echo \($((snapshots_per_second*snapshot_interval_seconds)) real life seconds per video second\)
 	echo Keeping videos for $keep_video_days days, in $videos_location
@@ -90,7 +90,7 @@ do
 			if ls ${previous_hour}*_${i}.jpg 1> /dev/null 2>&1
 			then
 				# Run in the background so that we can continue capturing screens.  Use 'nice' to not hit foreground apps too hard
-				(nice ffmpeg -framerate $snapshots_per_second -pattern_type glob -i "${previous_hour}*_${i}.jpg" -c:v libx264 ../${previous_hour}_${i}.mp4 > /dev/null 2>/dev/null ; rm ${previous_hour}*_${i}.jpg) &
+				(nice ffmpeg -framerate $snapshots_per_second -pattern_type glob -i "${previous_hour}*_${i}.jpg" -c:v libx264 ${videos_location}/${previous_hour}_${i}.mp4 > /dev/null 2>/dev/null ; rm ${previous_hour}*_${i}.jpg) &
 			fi
 		done
 		previous_hour=$current_hour
@@ -105,7 +105,7 @@ do
 			# Only create the movie if we have files for the last day
 			if ls ${previous_day}*_${i}.jpg 1> /dev/null 2>&1
 			then
-				(nice ffmpeg -f concat -i <(for f in ~/MacBlackBox/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy ../${previous_day}_${i}.mp4; rm ~/MacBlackBox/$previous_day??_$i.mp4) &
+				(nice ffmpeg -f concat -i <(for f in $videos_location/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy $videos_location/${previous_day}_${i}.mp4; rm $videos_location/$previous_day??_$i.mp4) &
 			fi
 		done
 		previous_day=$current_day
