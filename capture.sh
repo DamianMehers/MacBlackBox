@@ -104,7 +104,7 @@ do
 			# Only create the movie if we have files for the previous day
 			if ls ${previous_day}*_${i}.jpg 1> /dev/null 2>&1
 			then
-				(nice ffmpeg -f concat -i <(for f in $videos_location/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy $videos_location/${previous_day}_${i}.mp4; rm $videos_location/$previous_day??_$i.mp4) &
+				(nice ffmpeg -f concat -i -safe 0 <(for f in $videos_location/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy $videos_location/${previous_day}_${i}.mp4; rm $videos_location/$previous_day??_$i.mp4) &
 			fi
 		done
 		previous_day=$current_day
