@@ -1,6 +1,8 @@
 # MacBlackBox
 Remember what you did on your Mac by creating videos of all your screen activity each day
 
+[TimeSnapper for the Mac is now available](https://apps.apple.com/us/app/timesnapper/id1456327684?mt=12) - I'm personally using that now.
+
 This is a small bash script that takes a screen-shot of all your screens every ten seconds.  Every hour it combines them into an
 mp4 file (two screenshots per second).  Every day it combines the hourly mp4s into a daily mp4.
 
