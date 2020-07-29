@@ -72,7 +72,7 @@ do
 			# If we have a capture for this screen
 			if [ -f ${timestamp}_${i}.jpg ]
 			then
-				convert ${timestamp}_${i}.jpg -fill white  -undercolor '#00000080'  -gravity South -annotate +0+5 "${label}" ${timestamp}_${i}.jpg
+				convert ${timestamp}_${i}.jpg -fill white -pointsize 30 -undercolor '#00000080'  -gravity South -annotate +0+5 "${label}" ${timestamp}_${i}.jpg
 			fi
 		done
 	fi
@@ -102,7 +102,7 @@ do
 		for i in `seq 1 4`
 		do
 			# Only create the movie if we have files for the previous day
-			if ls ${previous_day}*_${i}.jpg 1> /dev/null 2>&1
+			if ls ${previous_day}*_${i}.mp4 1> /dev/null 2>&1
 			then
 				(nice ffmpeg -f concat -safe 0 -i <(for f in $videos_location/$previous_day*_$i.mp4; do echo "file '$f'"; done) -c copy $videos_location/${previous_day}_${i}.mp4; rm $videos_location/$previous_day??_$i.mp4) &
 			fi
